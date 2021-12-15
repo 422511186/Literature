@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--suppress SqlResolve -->
+<mapper namespace="com.hzy.mapper.RolesMapper">
+
+
+    <select id="selectRolesByUsername" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(user_roles)
+        from _roles
+        where `user_name`=#{username}
+        group by user_name;
+    </select>
+    <select id="selectUsernameByRoles" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(user_name)
+        from _roles
+        where `user_roles`=#{user_roles}
+        group by user_roles;
+    </select>
+</mapper>

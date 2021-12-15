@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzy.mapper.GroupsMapper">
+
+    <select id="selectGroupsByUsername" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(user_group.group_name)
+        FROM user_group
+        where `user_name` = #{userName}
+        group by user_name;
+    </select>
+
+    <select id="selectUsernameByGroups" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(user_name)
+        FROM user_group
+        where group_name = #{groupName}
+        group by group_name;
+    </select>
+
+</mapper>

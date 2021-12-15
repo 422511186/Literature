@@ -1,0 +1,30 @@
+server:
+  port: 8999 #启动端口为8999
+
+
+spring:
+  servlet:
+    multipart:
+      enabled: true #是否启用http上传处理
+      max-request-size: 100MB #最大请求文件的大小
+      max-file-size: 20MB #设置单个文件最大长度
+      file-size-threshold: 20MB #当文件达到多少时进行磁盘写入
+
+
+  datasource:
+    url: jdbc:mysql://150.158.193.51:3306/ms?characterEncoding=UTF-8&&serverTimezone=GMT
+    #    username: a
+    #    password: a
+    username: hzy
+    password: 145235!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true #开启驼峰命名法
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+

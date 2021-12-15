@@ -1,0 +1,35 @@
+{
+  "name": "repo",
+  "storage": {
+    "persistence": {
+      "type": "db",
+      "connectionUrl": "jdbc:mysql://localhost:3306/ms?serverTimezone=GMT",
+      "username": "root",
+      "password": "12345678",
+      "driver": "com.mysql.cj.jdbc.Driver"
+    }
+  },
+  "workspaces": {
+    "predefined": [
+      "otherWorkspace"
+    ],
+    "default": "default",
+    "allowCreation": true
+  },
+  "security": {
+    "anonymous": {
+      "roles": [
+        "readonly",
+        "readwrite",
+        "admin"
+      ],
+      "useOnFailedLogin": false
+    },
+    "providers": [
+      {
+        "name": "Spring Security",
+        "classname": "com.hzy.security.SpringSecurityProvider"
+      }
+    ]
+  }
+}

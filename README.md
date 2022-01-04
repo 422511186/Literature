@@ -1,30 +1,20 @@
-# ms
+# 文献阅读与协同管理
 
 #### 介绍
-ms
+文献阅读与协同管理
 
 #### 软件架构
 软件架构说明
-
+后台使用Spring boot整合ModeShape、Spring Scurity、mybatis-plus、mysql等相关技术进行接口开发。
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  安装Java8环境
+2.  搭建数据库
+3.  运行jar包
+    java --jar ms.jar
 
-#### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
 
 
 #### 特技

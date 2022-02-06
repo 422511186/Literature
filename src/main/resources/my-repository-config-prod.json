@@ -3,10 +3,15 @@
   "storage": {
     "persistence": {
       "type": "db",
-      "connectionUrl": "jdbc:mysql://localhost:3306/ms?serverTimezone=GMT",
-      "username": "root",
-      "password": "12345678",
+      "connectionUrl": "jdbc:mysql://150.158.193.51:3306/ms?characterEncoding=UTF-8&&serverTimezone=GMT&&allowMultiQueries=true&&&rewriteBatchedStatements=true",
+      "username": "hzy",
+      "password": "145235!",
       "driver": "com.mysql.cj.jdbc.Driver"
+    },
+    "binaryStorage" : {
+      "type" : "file",
+      "directory" : "repo/binaries",
+      "minimumBinarySizeInBytes" : 104857600
     }
   },
   "workspaces": {

@@ -16,8 +16,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @ApiModel(value = "添加批注的参数对象模型")
 public class addAnnotationModel {
+
     @ApiModelProperty(value = "需要做批注的文献id")
     private String nodeIdentifier;
     @ApiModelProperty(value = "批注")
     private String annotation;
+
 }

@@ -1,6 +1,7 @@
 package com.hzy.Service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.gson.Gson;
 import com.hzy.Controller.model.*;
 import com.hzy.Service.modeshapeService;
 import com.hzy.Utils.SerializeUtils;
@@ -10,8 +11,8 @@ import com.hzy.mapper.userGroupMapper;
 import com.hzy.security.SpringSecurityCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +49,12 @@ public class modeshapeServiceImpl implements modeshapeService {
     private userGroupMapper userGroupMapper;
     @Autowired
     private userServiceImpl userService;
+    @Autowired
+    private Gson gson;
+
+    //绑定文件上传路径到uploadPath
+    @Value("${web.upload-path}")
+    private String uploadPath;
 
     //初始化项目的必要存储库
     @PostConstruct
@@ -58,7 +66,7 @@ public class modeshapeServiceImpl implements modeshapeService {
 
             if (!rootNode.hasNode("File_Repository")) {
                 Node file_repository = rootNode.addNode("File_Repository");
-                log.info("新增文献库 ==> {}", file_repository.getName());
+                log.info("新增公共文献库 ==> {}", file_repository.getName());
                 session.save();
             } else
                 log.info("File_Repository已经存在！");
@@ -70,7 +78,6 @@ public class modeshapeServiceImpl implements modeshapeService {
                 session.save();
             } else
                 log.info("Collaboration_Repository已经存在！");
-
             session.logout();
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,7 +125,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("code", 200);
             map.put("data", list);
         } catch (RepositoryException e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("getFileInfoAll()-----------出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -129,35 +136,37 @@ public class modeshapeServiceImpl implements modeshapeService {
 
 
     @Override
-    public Map<String, Object> addFileInfo(PropertiesModel model) {
+    public Map<String, Object> addFileInfo(String Type, String id, PropertiesModel model) {
 
         Map<String, Object> map = new HashMap<>();
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
         Session session = Login();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-
-        int x = 0;
-        for (GrantedAuthority authority : auth.getAuthorities()) {
-            if ("admins".equals(authority.getAuthority())) {
-                x = 1;
-            }
-        }
-
-        if (x == 0) {
-            map.put("code", 403);
-            map.put("data", "无权限");
-            return map;
-        }
-
+        Node node = null;
         try {
-
-            Node node = session.getNode("/File_Repository");
+            if ("1".equals(Type)) {
+                node = session.getNode("/File_Repository");
+            } else if ("2".equals(Type)) {
+                node = session.getRootNode().getNode(name + "_Repository");
+            } else if ("3".equals(Type)) {
+                if (id == null || "".equals(id) || id.isEmpty()) {
+                    map.put("code", 500);
+                    map.put("msg", "id为必须传入的参数");
+                    return map;
+                }
+                try {
+                    node = session.getNodeByIdentifier(id);
+                } catch (RepositoryException e) {
+                    map.put("code", 500);
+                    map.put("msg", "该id不存在");
+                    return map;
+                }
+            }
 
             String node_name = UUID.randomUUID().toString().replace("-", "");
             log.info("UUID ---> node_name={}", node_name);
 
             //以UUID随机生成的字符串作为文件节点的名称
-            Node fileName = node.addNode(node_name);
+            Node fileName = node != null ? node.addNode(model.getName() + "_file") : null;
 
             //将文献的父节点的id也存进去
             model.setNodeIdentifier(fileName.getIdentifier());
@@ -171,6 +180,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             nodemodel.setNodeName(fileName.getName())
                     .setNodeIdentifier(fileName.getIdentifier())
                     .setNodePath(fileName.getPath());
+
             //存储节点Node的信息到  node_info属性中
             fileName.setProperty("node_info", SerializeUtils.serializeToString(nodemodel));
 
@@ -178,8 +188,13 @@ public class modeshapeServiceImpl implements modeshapeService {
             HashMap<String, Double> hashMap = new HashMap<>();
             fileName.setProperty("scoreMap", SerializeUtils.serializeToString(hashMap));
 
-            setPrivilege(session, fileName, "admins");
-            setPrivilege(session, fileName, "Literature_library");
+            //存储笔记的信息
+            HashMap<Integer, Object> notesMap = new HashMap();
+//            fileName.setProperty("notesMap", SerializeUtils.serializeToString(notesMap));
+            fileName.setProperty("notesMap", gson.toJson(notesMap));
+
+            //存储评论的信息
+            fileName.setProperty("Comment", "");
 
             session.save();
 
@@ -187,9 +202,8 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("data", nodemodel);
 
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
-            log.error("addFileInfo()------------出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
         } finally {
             session.logout();
@@ -220,7 +234,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("code", 200);
             map.put("data", model);
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("getFileInfoByID()------出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -236,14 +250,15 @@ public class modeshapeServiceImpl implements modeshapeService {
         try {
             Node nodeByIdentifier = session.getNodeByIdentifier(nodeIdentifier);
 
+
             nodeByIdentifier.remove();
 
             session.save();
             map.put("code", 200);
             map.put("msg", "删除成功");
         } catch (Exception e) {
-            map.put("code", 403);
-            map.put("error", e.getMessage());
+            map.put("code", 500);
+//            map.put("msg", "该文件不存在");
             log.error("deleteFileInfoByID()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
         }
@@ -297,7 +312,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("code", 200);
             map.put("msg", "succeed");
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error(e.getMessage());
             e.printStackTrace();
@@ -308,8 +323,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     @Override
     public Map<String, Object> getAll(String nodeIdentifier) {
         HashMap<String, Object> map = new HashMap<>();
-        ArrayList<NodeModel> list = new ArrayList<>();
-        ArrayList<FileModel> list1 = new ArrayList<>();
+        ArrayList<PropertiesModel> list = new ArrayList<>();
 
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -324,38 +338,24 @@ public class modeshapeServiceImpl implements modeshapeService {
             NodeIterator iterator = node.getNodes();
 
             while (iterator.hasNext()) {
+
                 Node itNode = iterator.nextNode();
 
                 //不显示mode:acl的文件夹
                 if (itNode.getName().contains("mode:acl"))
                     continue;
 
-                String s = String.valueOf(itNode.getProperty("node_info").getValue());
-                //反序列化构建对象--> 获得节点的信息
-                NodeModel node_info = (NodeModel) SerializeUtils.deserializeToObject(s);
-
-                if (!node_info.getNodeName().contains("file"))
-                    list.add(node_info);
-
-                else {
-                    //取文献引用的值
-//                    String quote = String.valueOf(itNode.getProperty("Quote").getValue());
-                    String file = node_info.getNodeName().replace("_file", "");
-                    FileModel fileModel = new FileModel();
-
-                    fileModel
-                            .setNodeName(file)
-                            .setNodeIdentifier(node_info.getNodeIdentifier());
-                    list1.add(fileModel);
-                }
+                String identifier = itNode.getIdentifier();
+                Map<String, Object> objectMap = getFileInfoByID(identifier);
+                list.add((PropertiesModel) objectMap.get("data"));
             }
 
+            session.save();
             map.put("code", 200);
-            map.put("node", list);
-            map.put("file", list1);
+            map.put("data", list);
 
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("getAll()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -398,11 +398,10 @@ public class modeshapeServiceImpl implements modeshapeService {
                 setPrivilege(session, addNode, "ShareAll");
             }
 
-
             session.save();
             session.logout();
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("getAll()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -425,7 +424,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             session.save();
             session.logout();
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("msg", "无权限");
             map.put("error", e.getMessage());
             log.error("remove()-----出现异常 ==> {}", e.getMessage());
@@ -458,7 +457,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("code", 200);
 
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("getAll()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -494,7 +493,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("data", new addFileModel(id, fileName, fileUrl));
 
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("addFile()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -593,7 +592,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("code", 200);
             map.put("msg", "succeed");
         } catch (RepositoryException e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("msg", "无权限");
             map.put("error", e.getMessage());
             log.error("permissionsForNode()-----出现异常 ==> {}", e.getMessage());
@@ -608,6 +607,7 @@ public class modeshapeServiceImpl implements modeshapeService {
 
         ArrayList<NodeModel> list = new ArrayList<>();
         ArrayList<FileModel> list1 = new ArrayList<>();
+        ArrayList<PropertiesModel> list2 = new ArrayList<>();
 
         Session session = Login();
         Node node;
@@ -627,32 +627,42 @@ public class modeshapeServiceImpl implements modeshapeService {
                     continue;
 
 
+
                 String s = String.valueOf(itNode.getProperty("node_info").getValue());
                 //反序列化构建对象--> 获得节点的信息
                 NodeModel node_info = (NodeModel) SerializeUtils.deserializeToObject(s);
 
                 if (!node_info.getNodeName().contains("file"))
                     list.add(node_info);
-                else {
-                    //取文献引用的值
-//                    String quote = String.valueOf(itNode.getProperty("Quote").getValue());
-                    String file = node_info.getNodeName().replace("_file", "");
-                    FileModel fileModel = new FileModel();
 
-                    fileModel
-                            .setNodeName(file)
-                            .setNodeIdentifier(node_info.getNodeIdentifier());
-                    list1.add(fileModel);
+                else {
+                    String file = node_info.getNodeName().replace("_file", "");
+//                    FileModel fileModel = new FileModel();
+//
+//                    fileModel
+//                            .setNodeName(file)
+//                            .setNodeIdentifier(node_info.getNodeIdentifier());
+//                    list1.add(fileModel);
+
+                    String identifier = itNode.getIdentifier();
+                    Map<String, Object> objectMap = getFileInfoByID(identifier);
+                    list2.add((PropertiesModel) objectMap.get("data"));
                 }
             }
 
             map.put("code", 200);
-            map.put("node", list);
-            map.put("file", list1);
+            map.put("data", new HashMap(){{
+                put("node", list);
+                put("file", list2);
+             }}
+            );
+
+//            map.put("node", list);
+//            map.put("file", list2);
 
         } catch (Exception e) {
 
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("getAll()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -680,6 +690,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             //设置权限
             //自己有全部权限
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
             setPrivilege(session, addNode, authentication.getName());
 
             if (groupName != null && groupName.length() > 0)
@@ -737,7 +748,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             map.put("code", 200);
             map.put("data", list);
         } catch (RepositoryException e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("msg", "获取异常");
             e.printStackTrace();
         }
@@ -767,7 +778,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             else
                 map.put("msg", "此库不受该团队管理");
         } catch (RepositoryException e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("msg", "无权限");
             e.printStackTrace();
         }
@@ -778,41 +789,67 @@ public class modeshapeServiceImpl implements modeshapeService {
     public Map<String, Object> removeCollaboration(String nodeIdentifier) {
 
         HashMap<String, Object> map = new HashMap<>();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
         Session session = Login();
         try {
             Node nodeByIdentifier = session.getNodeByIdentifier(nodeIdentifier);
-            int x = -1;
 
+            //检查该节点是否含有权限控制
+            //校验权限组中是否含有本用户
+            int x = -1;
             boolean b = nodeByIdentifier.hasNode("mode:acl");
             if (b) {
-                x=0;
+                x = 0;
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 Node node = nodeByIdentifier.getNode("mode:acl");
                 NodeIterator iterator = node.getNodes();
                 while (iterator.hasNext()) {
                     Node nextNode = iterator.nextNode();
                     if (nextNode.getName().equals(auth.getName())) {
-                        x=1;
+                        x = 1;
                         break;
                     }
                 }
             }
-
             if (x == 0) {
-                map.put("code", 403);
-                map.put("data", "无权限");
+                map.put("code", 500);
+                map.put("msg", "无权限");
                 return map;
             }
+            //非文献信息节点
+            if (!nodeByIdentifier.hasProperty("obj")){
+                //先删除文献节点，防止文献节点无权限删除，而pdf文件被删除
+                nodeByIdentifier.remove();
+            }else {//文献信息节点
+                //获取文献信息
+                Property obj = nodeByIdentifier.getProperty("obj");
+                String s = String.valueOf(obj.getValue());
 
-            nodeByIdentifier.remove();
+                //反序列化成存储文献信息的对象
+                PropertiesModel model = (PropertiesModel) SerializeUtils.deserializeToObject(s);
+                String oldPath = model.getPath();
+
+                //先删除文献节点，防止文献节点无权限删除，而pdf文件被删除
+                nodeByIdentifier.remove();
+
+                //如果存在PDF，删除存储的PDF文件，避免磁盘无效占用。
+                File file = new File(uploadPath + oldPath);
+                if (file.exists()) {
+                    file.delete();
+                    System.out.println("===========删除成功=================");
+                } else {
+                    System.out.println("===============删除失败==============");
+                }
+            }
 
             map.put("code", 200);
+            map.put("msg", "删除成功");
 
             session.save();
             session.logout();
         } catch (Exception e) {
-            map.put("code", 403);
-            map.put("error", e.getMessage());
+            map.put("code", 500);
+            map.put("msg","无权限");
             log.error("removeCollaboration()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
         }
@@ -825,9 +862,9 @@ public class modeshapeServiceImpl implements modeshapeService {
 
         String nodeIdentifier = model.getNodeIdentifier();
         String annotation = model.getAnnotation();
-        if (nodeIdentifier.isEmpty()||annotation.isEmpty()){
-            map.put("code",403);
-            map.put("msg","参数缺失");
+        if (nodeIdentifier.isEmpty() || annotation.isEmpty()) {
+            map.put("code", 500);
+            map.put("msg", "参数缺失");
             return map;
         }
 
@@ -839,40 +876,35 @@ public class modeshapeServiceImpl implements modeshapeService {
             Property annotation1 = node.getProperty("Annotation");
 
             String value = String.valueOf(annotation1.getValue());
-            Map<String,Object> AnnotationMap = (Map<String, Object>) SerializeUtils.deserializeToObject(value);
+            Map<String, Object> AnnotationMap = (Map<String, Object>) SerializeUtils.deserializeToObject(value);
 
-            AnnotationMap.put(auth.getName(),model.getAnnotation());
+            AnnotationMap.put(auth.getName(), model.getAnnotation());
             node.setProperty("Annotation", SerializeUtils.serializeToString(AnnotationMap));
             session.save();
             map.put("code", 200);
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("addAnnotation()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
         }
-
         return map;
     }
 
     @Override
     public Map<String, Object> getAnnotations(String nodeIdentifier) {
         HashMap<String, Object> map = new HashMap<>();
-
         Session session = Login();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         try {
             Node node = session.getNodeByIdentifier(nodeIdentifier);
             Property annotation1 = node.getProperty("Annotation");
-
             String value = String.valueOf(annotation1.getValue());
-            Map<String,Object> AnnotationMap = (Map<String, Object>) SerializeUtils.deserializeToObject(value);
-
+            Map<String, Object> AnnotationMap = (Map<String, Object>) SerializeUtils.deserializeToObject(value);
             map.put("code", 200);
-            map.put("data",AnnotationMap);
+            map.put("data", AnnotationMap);
         } catch (Exception e) {
-            map.put("code", 403);
+            map.put("code", 500);
             map.put("error", e.getMessage());
             log.error("addAnnotation()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
@@ -880,5 +912,214 @@ public class modeshapeServiceImpl implements modeshapeService {
 
         return map;
     }
+
+/**
+ *  -----------------------------------------------------------
+ *  以上部分代码都是狗屎，删除是不敢删除的，
+ *  删除，屎山代码炸了咋办！
+ *  只能找找看看有没有什么可重用的代码了！
+ *   -----------------------------------------------------------
+ */
+
+    @Override
+    public String update(PropertiesModel model, String id) throws Exception {
+        Session session = Login();
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+            model.setNodeIdentifier(id);
+            //获取文献信息
+            Property obj = node.getProperty("obj");
+            String s = String.valueOf(obj.getValue());
+            //反序列化成存储文献信息的对象
+            PropertiesModel model1 = (PropertiesModel) SerializeUtils.deserializeToObject(s);
+            //保存原有的评分
+            model.setScore(model1.getScore());
+
+            //保存原有的评论
+            model.setComment(model1.getComment());
+            //保存文献PDF路径
+            model.setPath(model1.getPath());
+
+            //将文献信息序列化成为字符串存储
+            node.setProperty("obj", SerializeUtils.serializeToString(model));
+            session.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return "修改完成";
+    }
+
+    @Override
+    public String setComment(String id, String Comment) throws Exception {
+        Session session = Login();
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+
+//            //获取文献信息
+//            Property obj = node.getProperty("obj");
+//            String s = String.valueOf(obj.getValue());
+//            //反序列化成存储文献信息的对象
+//            PropertiesModel model = (PropertiesModel) SerializeUtils.deserializeToObject(s);
+//            //写入Comment评论
+//            model.setComment(Comment);
+//            //将文献信息序列化成为字符串存储
+//            node.setProperty("obj", SerializeUtils.serializeToString(model));
+
+            if (!node.hasProperty("Comment")) {
+                //初始化属性
+                node.setProperty("Comment", "");
+            }
+            //存储评论的信息
+            node.setProperty("Comment", Comment);
+            System.out.println("Comment = " + Comment);
+            session.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return "保存Comment完成";
+    }
+
+    @Override
+    public String getComment(String id) throws RepositoryException {
+        String value;
+        Session session = Login();
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+            //如果没有
+            if (!node.hasProperty("Comment")) {
+                //初始化属性
+                node.setProperty("Comment", "");
+            }
+            value = String.valueOf(node.getProperty("Comment").getValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return value;
+    }
+
+    @Override
+    public String setNotes(String id, Integer pageNum,canvasModel  Notes) throws Exception {
+        Session session = Login();
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+
+            //取出来
+            String notesStr = String.valueOf(node.getProperty("notesMap").getValue());
+
+//            HashMap<Integer, Object> notesMap = (HashMap<Integer, Object>) SerializeUtils.deserializeToObject(notesStr);
+            Map notesMap = gson.fromJson(notesStr, Map.class);
+
+            //将页码与其对应的笔记画布存储
+            notesMap.put(String.valueOf(pageNum) , gson.toJson(Notes));
+//            System.out.println("notesMap = " + notesMap);
+//            System.out.println("notesMap = " + notesMap.get("1"));
+
+            //保存页数和笔记
+//            node.setProperty("notesMap", SerializeUtils.serializeToString(notesMap));
+            node.setProperty("notesMap", gson.toJson(notesMap));
+
+            session.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return "保存Notes完成";
+    }
+
+    @Override
+    public String setPath(String id, String Path) throws Exception {
+        Session session = Login();
+        String oldPath = null;
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+
+            //获取文献信息
+            Property obj = node.getProperty("obj");
+            String s = String.valueOf(obj.getValue());
+            //反序列化成存储文献信息的对象
+            PropertiesModel model = (PropertiesModel) SerializeUtils.deserializeToObject(s);
+            oldPath = model.getPath();
+            //写入Path
+            model.setPath(Path);
+
+            //将文献信息序列化成为字符串存储
+            node.setProperty("obj", SerializeUtils.serializeToString(model));
+            session.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return oldPath;
+    }
+
+    @Override
+    public canvasModel getNotes(String id,Integer pageNum) throws Exception {
+//        Map map;
+        Map notesMap;
+        String result;
+        Session session = Login();
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+//            System.out.println(node.getProperty("notesMap").getString());
+            //取出文献对应的笔记
+            String notesStr = String.valueOf(node.getProperty("notesMap").getValue());
+
+            notesMap = gson.fromJson(notesStr, Map.class);
+            //取出指定页码的画布数据
+            result = String.valueOf(notesMap.get(String.valueOf(pageNum)));
+            System.out.println("result = " + result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return gson.fromJson(result,canvasModel.class);
+    }
+
 
 }

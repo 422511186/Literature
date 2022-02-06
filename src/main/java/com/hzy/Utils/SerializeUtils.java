@@ -13,12 +13,15 @@ import java.io.ObjectOutputStream;
 
 
 public class SerializeUtils {
+
+
     //序列化
     public static String serializeToString(Object obj) throws Exception {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
         objOut.writeObject(obj);
         return byteOut.toString("ISO-8859-1");
+
     }
 
     //反序列化

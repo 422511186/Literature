@@ -9,6 +9,11 @@
       "name": "swagger.application-name",
       "type": "java.lang.String",
       "description": "Description for swagger.application-name."
+    },
+    {
+      "name": "spring.servlet.multipart.resources.static-locations",
+      "type": "java.lang.String",
+      "description": "Description for spring.servlet.multipart.resources.static-locations."
     }
   ]
 }

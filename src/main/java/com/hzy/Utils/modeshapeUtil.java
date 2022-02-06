@@ -25,7 +25,7 @@ public class modeshapeUtil {
     private static JcrRepository repository = null;
     private static Session session = null;
     //存储库的配置文件
-    private static final URL URL = modeshapeUtil.class.getClassLoader().getResource("my-repository-config.json");
+    private static final URL URL = modeshapeUtil.class.getClassLoader().getResource("my-repository-config-dev.json");
 
     /**
      * 静态代码块，存储库引擎启动，加载存储库配置文件，并且检查配置和部署是否存在错误

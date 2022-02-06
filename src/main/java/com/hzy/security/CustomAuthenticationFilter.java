@@ -3,7 +3,6 @@ package com.hzy.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

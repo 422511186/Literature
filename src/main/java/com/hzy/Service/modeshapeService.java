@@ -2,8 +2,10 @@ package com.hzy.Service;
 
 import com.hzy.Controller.model.PropertiesModel;
 import com.hzy.Controller.model.addAnnotationModel;
+import com.hzy.Controller.model.canvasModel;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.util.Map;
 
@@ -21,7 +23,7 @@ public interface modeshapeService {
     Map<String, Object> getFileInfoAll();
 
     //添加文献信息
-    Map<String, Object> addFileInfo(PropertiesModel model);
+    Map<String, Object> addFileInfo(String Type,String id,PropertiesModel model);
 
     //修改文献信息
     Map<String, Object> updateFileInfo(PropertiesModel model);
@@ -75,11 +77,63 @@ public interface modeshapeService {
     Map<String, Object> delGroupForNode(String nodeIdentifier, String groupName);
     //删除文献
     Map<String, Object> removeCollaboration(String nodeIdentifier);
+
     //为文献添加批注
     Map<String, Object> addAnnotation(addAnnotationModel model);
     //获得文献批注
     Map<String, Object> getAnnotations(String nodeIdentifier);
 
+    /**
+     *  -----------------------------------------------------------
+     *  以上部分代码都是狗屎，删除是不敢删除的，
+     *  删除炸了咋办！
+     *  只能看看有没有什么可重用的代码了！
+     *   -----------------------------------------------------------
+     */
 
+    /**
+     * 修改文献信息
+     * @param model
+     * @param id
+     * @return
+     * @throws Exception
+     */
 
+  String update(PropertiesModel model,String id) throws Exception;
+
+    /**
+     * 保存评论
+     * @param id
+     * @param Comment
+     * @return
+     */
+  String setComment(String id,String Comment) throws Exception;
+    /**
+     * 保存文献笔记
+     * @param id
+     * @param Notes
+     * @return
+     */
+    String setNotes(String id, Integer pageNum, canvasModel Notes) throws Exception;
+
+    /**
+     * 保存文献PDF路径
+     * @param id
+     * @param Path
+     * @return
+     */
+    String setPath(String id,String Path) throws Exception;
+
+    /**
+     * 获取文献的笔记
+     * @param id    文献的id
+     * @param pageNum    页码
+     * @return
+     */
+    canvasModel getNotes(String id,Integer pageNum) throws Exception;
+    /**
+     * 获取文献的评论
+     * @param id    文献的id
+     */
+    String getComment(String id) throws RepositoryException;
 }

@@ -23,6 +23,8 @@ public class PropertiesModel implements Serializable {
     private String nodeIdentifier;
     @ApiModelProperty(value = "文献的URL")
     private String url;
+    @ApiModelProperty(value = "文献的实体文件路径")
+    private String path;
     @ApiModelProperty(value = "标题")
     private String title;
     @ApiModelProperty(value = "作者")
@@ -63,6 +65,10 @@ public class PropertiesModel implements Serializable {
     private Integer importance;
     @ApiModelProperty(value = "附件")
     private String cases;
+//    @ApiModelProperty(value = "批注、笔记")
+//    private String notes;
+    @ApiModelProperty(value = "评论")
+    private String Comment;
     @ApiModelProperty(value = "平均评分")
     private double score;
 }

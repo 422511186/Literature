@@ -20,8 +20,6 @@ import java.io.Serializable;
 public class FileModel implements Serializable {
     @ApiModelProperty(value = "文献名(自己取的)")
     private String nodeName;
-    @ApiModelProperty(value = "文献实体的url(隐藏)")
-    private String quote;
     @ApiModelProperty(value = "文献对应文献库中的id")
     private String nodeIdentifier;
 }

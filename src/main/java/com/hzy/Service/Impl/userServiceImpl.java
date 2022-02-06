@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -92,8 +93,11 @@ public class userServiceImpl implements userService {
             session = repository.login();
             Node node = session.getRootNode().addNode(roName);
             log.info("新增用户库==>{}", node.getName());
+
+//            个人库只有自己能够操控
 //            modeshapeService.setPrivilege(session, node, user.getUsername());
 //            modeshapeService.setPrivilege(session, node, "ShareAll");
+            
             session.save();
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,7 +149,14 @@ public class userServiceImpl implements userService {
         String auth = SecurityContextHolder.getContext().getAuthentication().getName();
         log.debug("auth==>{}", auth);
 
-        return userGroupMapper.selectList(new QueryWrapper<userGroup>().eq("user_name", auth));
+        List<userGroup> lists = userGroupMapper.selectList(new QueryWrapper<userGroup>().eq("user_name", auth));
+        ArrayList<userGroup> arrayList = new ArrayList<>();
+        for (userGroup list: lists) {
+            if (!list.getGroupName().equals("ShareAll")&&!list.getGroupName().equals("Literature_library")){
+                arrayList.add(list);
+            }
+        }
+        return arrayList;
     }
 
     @Override
@@ -206,8 +217,10 @@ public class userServiceImpl implements userService {
             return "无权限";
         String auth = SecurityContextHolder.getContext().getAuthentication().getName();
         Groups groups = groupsMapper.selectOne(new QueryWrapper<Groups>().eq("group_name", GroupName));
+
         if (auth.equals(groups.getOwner()))
             return "组长无法退出组,只能解散组";
+
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("user_name", auth);
         hashMap.put("group_name", GroupName);

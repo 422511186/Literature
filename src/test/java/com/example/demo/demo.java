@@ -24,7 +24,7 @@ public class demo {
 
         SecurityFactory.prepare();
         //读取存储库的配置文件
-        RepositoryConfiguration config = RepositoryConfiguration.read("my-repository-config.json");
+        RepositoryConfiguration config = RepositoryConfiguration.read("my-repository-config-dev.json");
 
         System.out.println("config = " + config);
         System.out.println("config.getName() = " + config.getName());

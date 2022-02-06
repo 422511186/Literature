@@ -20,7 +20,7 @@ import java.util.Date;
  * @Date: 2021/10/5 10:12
  * @Description:
  */
-
+@Deprecated
 @Component
 public class JWTTokenUtil {
     final static Logger log = LoggerFactory.getLogger(JWTTokenUtil.class);

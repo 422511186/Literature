@@ -6,6 +6,7 @@ package com.example.demo;
  * @Description:
  */
 public class Rect {
+
     private double width;
     private double length;
 
@@ -24,4 +25,5 @@ public class Rect {
     public double calArea(){
         return width*length;
     }
+
 }

@@ -190,7 +190,6 @@ public class modeshapeServiceImpl implements modeshapeService {
 
             //存储笔记的信息
             HashMap<Integer, Object> notesMap = new HashMap();
-//            fileName.setProperty("notesMap", SerializeUtils.serializeToString(notesMap));
             fileName.setProperty("notesMap", gson.toJson(notesMap));
 
             //存储评论的信息

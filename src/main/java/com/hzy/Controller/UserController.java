@@ -31,12 +31,16 @@ import java.util.Map;
 @RequestMapping(value = "/Api/User")
 public class UserController {
 
+    private final userServiceImpl userService;
+    private final AuthenticationManager authenticationManager;
+    private final modeshapeServiceImpl modeshapeService;
+
     @Autowired
-    private userServiceImpl userService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private modeshapeServiceImpl modeshapeService;
+    public UserController(userServiceImpl userService, AuthenticationManager authenticationManager, modeshapeServiceImpl modeshapeService) {
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.modeshapeService = modeshapeService;
+    }
 
     @ApiOperation("获得当前用户信息")
     @GetMapping("getUser")

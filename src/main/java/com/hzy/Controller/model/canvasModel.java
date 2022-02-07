@@ -29,4 +29,11 @@ public class canvasModel {
          return objects;
      }
 
+    @Override
+    public String toString() {
+        return "canvasModel{" +
+                "version='" + version + '\'' +
+                ", objects=" + objects +
+                '}';
+    }
 }

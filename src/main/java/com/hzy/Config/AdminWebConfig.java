@@ -13,6 +13,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.text.SimpleDateFormat;
+
 
 @Slf4j
 @Configuration
@@ -32,9 +34,15 @@ public class AdminWebConfig  implements WebMvcConfigurer {
         return factory;
     }
 
+
     @Bean
     Gson gson(){
         return new Gson();
+    }
+
+    @Bean
+    SimpleDateFormat SimpleDateFormat(){
+        return new SimpleDateFormat("yyyy-MM-dd-");
     }
 
     /**

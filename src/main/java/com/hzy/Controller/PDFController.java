@@ -34,7 +34,9 @@ public class PDFController {
     @Value("${web.upload-path}")
     private String uploadPath;
 
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-");
+    @Autowired
+    private  SimpleDateFormat sdf;
+
     @Autowired
     public PDFController(modeshapeServiceImpl modeshapeService) {
         this.modeshapeService = modeshapeService;

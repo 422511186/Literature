@@ -1,5 +1,6 @@
 package com.hzy.Service;
 
+import com.hzy.Controller.model.userInfoModel;
 import com.hzy.entity.Groups;
 import com.hzy.entity.Users;
 import com.hzy.entity.userGroup;
@@ -25,6 +26,13 @@ public interface userService {
      * @return
      */
     String Register(Users user);
+
+    /**
+     * 设置账号的更多信息
+     * @param model
+     * @return
+     */
+    boolean setUserInfo(userInfoModel model);
 
     /**
      * 创建组

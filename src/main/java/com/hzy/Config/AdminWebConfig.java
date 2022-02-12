@@ -30,7 +30,7 @@ public class AdminWebConfig  implements WebMvcConfigurer {
     @Bean
     ModeShapeRepositoryFactory repositoryFactory() {
         ModeShapeRepositoryFactory factory = new ModeShapeRepositoryFactory();
-        factory.setConfiguration(new ClassPathResource(CONFIG_DEV));
+        factory.setConfiguration(new ClassPathResource(CONFIG_PROD));
         return factory;
     }
 
@@ -87,7 +87,7 @@ public class AdminWebConfig  implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/file/**")
-                .addResourceLocations("file:" + PDFPATH_DEV);
+                .addResourceLocations("file:" + PDFPATH_PROD);
     }
 
 }

@@ -2,9 +2,6 @@ package com.hzy.Controller.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.experimental.Accessors;
-
-import java.io.Serializable;
 
 /**
  * @Auther: hzy

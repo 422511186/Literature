@@ -102,6 +102,16 @@ public interface modeshapeService {
 
   String update(PropertiesModel model,String id) throws Exception;
 
+  /**
+     * 修改文献标签
+     * @param model
+     * @param id
+     * @return
+     * @throws Exception
+     */
+
+  String updateDynamicTags(PropertiesModel model,String id) throws Exception;
+
     /**
      * 保存评论
      * @param id

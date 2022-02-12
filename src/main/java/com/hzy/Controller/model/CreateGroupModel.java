@@ -1,8 +1,6 @@
 package com.hzy.Controller.model;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.ToString;
 
 import java.io.Serializable;
 

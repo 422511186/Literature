@@ -2,6 +2,7 @@ package com.hzy.Controller;
 
 import com.hzy.Controller.model.KickModel;
 import com.hzy.Controller.model.setGroupModel;
+import com.hzy.Controller.model.userInfoModel;
 import com.hzy.Controller.model.userModel;
 import com.hzy.Service.Impl.modeshapeServiceImpl;
 import com.hzy.Service.Impl.userServiceImpl;
@@ -52,6 +53,23 @@ public class UserController {
         return map;
     }
 
+    @ApiOperation("设置账号的更多信息")
+    @PostMapping("setUserInfo")
+    public Map<String, Object> setUserInfo(@RequestBody userInfoModel model) {
+        Map<String, Object> map = new HashMap<>();
+        boolean result = userService.setUserInfo(model);
+        if (result){
+            map.put("code", 200);
+            map.put("msg", "更新信息成功");
+        }else {
+            map.put("code",460);
+            map.put("msg","更新信息失败");
+        }
+        return map;
+    }
+
+
+
     @ApiOperation("用户注册接口")
     @PostMapping(value = "register")
     public Map<String, Object> Register(@RequestBody userModel user) {
@@ -59,7 +77,7 @@ public class UserController {
 
         //如果用户名或密码长度小于10位
         if(user.getUsername().length()<=10||user.getPassword().length()<=10){
-            map.put("code",500);
+            map.put("code",460);
             map.put("msg","用户名或者密码不符合要求");
             return map;
         }
@@ -95,6 +113,7 @@ public class UserController {
         Map<String, Object> map = new HashMap<>();
 
         List<userGroup> getGroupsForMeList = userService.getGroupsForMe();
+
         map.put("code", 200);
         map.put("data", getGroupsForMeList);
 

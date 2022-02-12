@@ -23,6 +23,7 @@ public class userGroup implements Serializable {
     @TableField(value = "group_name")
     private String groupName;
 
+
     public userGroup() {
     }
 

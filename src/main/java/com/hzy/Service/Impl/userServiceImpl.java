@@ -1,17 +1,15 @@
 package com.hzy.Service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.hzy.Controller.Vo.userVo;
+import com.hzy.Controller.model.userInfoModel;
 import com.hzy.Service.userService;
-import com.hzy.entity.Groups;
-import com.hzy.entity.Roles;
-import com.hzy.entity.Users;
-import com.hzy.entity.userGroup;
-import com.hzy.mapper.GroupsMapper;
-import com.hzy.mapper.RolesMapper;
-import com.hzy.mapper.UsersMapper;
-import com.hzy.mapper.userGroupMapper;
+import com.hzy.entity.*;
+import com.hzy.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +18,7 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -43,13 +42,30 @@ public class userServiceImpl implements userService {
     @Autowired
     private GroupsMapper groupsMapper;
     @Autowired
+    private userInfoMapper userInfoMapper;
+    @Autowired
     private modeshapeServiceImpl modeshapeService;
     @Autowired
     private Repository repository;
 
     @Override
     public Object getUser() {
-        return SecurityContextHolder.getContext().getAuthentication();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username);
+        Users userOne = usersMapper.selectOne(wrapper);
+        userInfo userInfo = userInfoMapper.selectById(userOne.getId());
+        userVo userVo = new userVo();
+        userVo.setAccount(userOne.getUsername());
+        userVo.setNickName(userInfo.getNickName());
+        userVo.setMail(userInfo.getMail());
+        userVo.setProfession(userInfo.getProfession());
+        userVo.setUnit(userInfo.getUnit());
+        userVo.setTelephone(userInfo.getTelephone());
+        userVo.setPersonalStatement(userInfo.getPersonalStatement());
+
+        log.info("userVo={}",userVo);
+        return userVo;
     }
 
     @Override
@@ -65,6 +81,16 @@ public class userServiceImpl implements userService {
             return "该用户名已被占用";
         //注册user账号
         int userInsert = usersMapper.insert(user);
+
+        log.info(user.toString());
+        userInfoMapper.insert(new userInfo(user.getId(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null));
+
         if (userInsert == 0)
             return "异常错误";
         //设置账号角色
@@ -107,6 +133,30 @@ public class userServiceImpl implements userService {
         }
 
         return "true";
+    }
+
+    @Override
+    public boolean setUserInfo(userInfoModel model) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username);
+        Users userOne = usersMapper.selectOne(wrapper);
+
+        log.info("id = {}",userOne.getId());
+        userInfo userInfo = new userInfo();
+        userInfo.setId(userOne.getId());
+
+        userInfo.setNickName(model.getNickName());
+        userInfo.setUnit(model.getUnit());
+        userInfo.setProfession(model.getProfession());
+        userInfo.setMail(model.getMail());
+        userInfo.setTelephone(model.getTelephone());
+        userInfo.setPersonalStatement(model.getPersonalStatement());
+
+        int update = userInfoMapper.updateById(userInfo);
+        if (update==0)
+            return false;
+        return true;
     }
 
     @Override
@@ -214,7 +264,7 @@ public class userServiceImpl implements userService {
 
     @Override
     public String Disband(String GroupName) {
-        if ("ShareAll".equals(GroupName) || "admins".equals(GroupName)||"Literature_library".equals(GroupName))
+        if (Arrays.asList("ShareAll", "admins", "Literature_library").contains(GroupName))
             return "无权限";
         String auth = SecurityContextHolder.getContext().getAuthentication().getName();
         Groups selectOne
@@ -223,8 +273,15 @@ public class userServiceImpl implements userService {
             return "该组不存在";
         if (!selectOne.getOwner().equals(auth))
             return "本操作仅限组长操作";
+        String nodeId = selectOne.getNodeId();
+
+        modeshapeService.removeCollaboration(nodeId);
+        log.info("团队库{}已经删除！",nodeId);
+
+
         groupsMapper.deleteById(selectOne.getId());
         userGroupMapper.delete(new QueryWrapper<userGroup>().eq("group_name", GroupName));
+
         return "true";
     }
 

@@ -113,6 +113,30 @@ public class MsController {
         return map;
     }
 
+    @ApiOperation("修改文献标签")
+    @PostMapping(value = "updateDynamicTags")
+    public Map<String, Object> updateDynamicTags(@RequestParam(value = "id") String id,
+                                                 @RequestBody PropertiesModel model) {
+        HashMap<String, Object> map = new HashMap<>();
+        if (id.isEmpty()) {
+            map.put("code", 500);
+            map.put("msg", "id为必须传入的参数,不可为空!");
+            return map;
+        }
+        String update;
+        try {
+            update = modeshapeService.updateDynamicTags(model, id);
+            map.put("code", 200);
+            map.put("msg", update);
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("code", 500);
+            map.put("msg", e.getMessage());
+        }
+        return map;
+    }
+
+
     @ApiOperation("为文献评分")
     @GetMapping(value = "setScore")
     public Map<String, Object> setScore(@RequestParam(value = "id") String id,

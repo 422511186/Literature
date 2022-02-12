@@ -973,6 +973,38 @@ public class modeshapeServiceImpl implements modeshapeService {
     }
 
     @Override
+    public String updateDynamicTags(PropertiesModel model, String id) throws Exception {
+        Session session = Login();
+        try {
+            Node node = null;
+            try {
+                node = session.getNodeByIdentifier(id);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("该id不存在");
+            }
+            model.setNodeIdentifier(id);
+            //获取文献信息
+            Property obj = node.getProperty("obj");
+            String s = String.valueOf(obj.getValue());
+            //反序列化成存储文献信息的对象
+            PropertiesModel model1 = (PropertiesModel) SerializeUtils.deserializeToObject(s);
+
+            model1.setDynamicTags(model.getDynamicTags());
+            //将文献信息序列化成为字符串存储
+            node.setProperty("obj", SerializeUtils.serializeToString(model1));
+
+            session.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.logout();
+        }
+        return "修改完成";
+    }
+
+
+    @Override
     public String setComment(String id, String Comment) throws Exception {
         Session session = Login();
         try {

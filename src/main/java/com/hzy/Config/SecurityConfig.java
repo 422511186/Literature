@@ -50,10 +50,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder myPasswordEncoder;
 
-    @Autowired
+//    @Autowired
     private myUserDetailsService myCustomUserService;
 
-    @Autowired
+//    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -106,7 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException ex) throws IOException, ServletException {
                 response.setContentType("application/json;charset=utf-8");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 PrintWriter out = response.getWriter();
                 Map<String, Object> map = new HashMap<>();
                 map.put("code", 401);
@@ -142,7 +142,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
                         response.setContentType("application/json;charset=utf-8");
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         PrintWriter out = response.getWriter();
                         Map<String, Object> map = new HashMap<>();
                         map.put("code", 403);
@@ -157,7 +157,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //处理跨域请求中的Preflight请求
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers("/Api/User/register", "/Api/test/**", "/Api/User/loginTest","/file/**").permitAll()
-//                .antMatchers("/docs.html", "/swagger-ui/index.html").hasAnyAuthority("admin")//文档接口仅限管理员权限课见
+//                .antMatchers("/docs.html", "/swagger-ui/index.html").hasAnyAuthority("admin")//文档接口仅限管理员权限可见
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated() //必须授权才能范围
@@ -172,7 +172,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex) throws IOException, ServletException {
                         response.setContentType("application/json;charset=utf-8");
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         PrintWriter out = response.getWriter();
                         Map<String, Object> map = new HashMap<>();
                         map.put("code", 403);

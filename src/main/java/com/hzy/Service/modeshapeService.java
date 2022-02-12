@@ -65,7 +65,7 @@ public interface modeshapeService {
     Map<String, Object> getAllTeam(String nodeIdentifier);
 
     //创建团队库
-    boolean create_Team_Node(String groupName, String nodeName);
+    String create_Team_Node(String groupName, String nodeName);
 
     //创建团队服务
     Map<String, Object> create_Team(String groupName, String nodeName);
@@ -75,6 +75,7 @@ public interface modeshapeService {
 
     //删除团队和团队库存的关联关系
     Map<String, Object> delGroupForNode(String nodeIdentifier, String groupName);
+
     //删除文献
     Map<String, Object> removeCollaboration(String nodeIdentifier);
 

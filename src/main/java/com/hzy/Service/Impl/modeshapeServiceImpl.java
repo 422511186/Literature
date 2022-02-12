@@ -1,6 +1,8 @@
 package com.hzy.Service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.google.gson.Gson;
 import com.hzy.Controller.model.*;
 import com.hzy.Service.modeshapeService;
@@ -281,7 +283,8 @@ public class modeshapeServiceImpl implements modeshapeService {
             String s = String.valueOf(obj.getValue());
 
             //反序列化为Map对象
-            HashMap<String, Double> scoreMap = (HashMap<String, Double>) SerializeUtils.deserializeToObject(scoreStr);
+            HashMap<String, Double> scoreMap
+                    = (HashMap<String, Double>) SerializeUtils.deserializeToObject(scoreStr);
 
             //反序列化成存储文献信息的对象
             PropertiesModel model = (PropertiesModel) SerializeUtils.deserializeToObject(s);
@@ -331,8 +334,14 @@ public class modeshapeServiceImpl implements modeshapeService {
         try {
             if (nodeIdentifier != null && nodeIdentifier.length() > 0)
                 node = session.getNodeByIdentifier(nodeIdentifier);
-            else
-                node = session.getRootNode().getNode(name + "_Repository");
+            else{
+                Node rootNode = session.getRootNode();
+                if (!rootNode.hasNode(name + "_Repository")){
+                    log.info("create {}_Repository",name);
+                    rootNode.addNode(name + "_Repository");
+                }
+                node = rootNode.getNode(name + "_Repository");
+            }
 
             NodeIterator iterator = node.getNodes();
 
@@ -670,7 +679,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     }
 
     @Override
-    public boolean create_Team_Node(String groupName, String nodeName) {
+    public String create_Team_Node(String groupName, String nodeName) {
         Session session = Login();
         Node node;
         try {
@@ -683,26 +692,25 @@ public class modeshapeServiceImpl implements modeshapeService {
             nodeModel.setNodeName(nodeName)
                     .setNodeIdentifier(addNode.getIdentifier())
                     .setNodePath(addNode.getPath());
+
             //存储新建节点的信息
             addNode.setProperty("node_info", SerializeUtils.serializeToString(nodeModel));
 
             //设置权限
             //自己有全部权限
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
             setPrivilege(session, addNode, authentication.getName());
 
             if (groupName != null && groupName.length() > 0)
                 setPrivilege(session, addNode, groupName);
 
-
             session.save();
             session.logout();
-            return true;
+            return addNode.getIdentifier();
         } catch (Exception e) {
             e.printStackTrace();
             log.error("create_Team_Node()-----出现异常 ==> {}", e.getMessage());
-            return false;
+            return null;
         }
     }
 
@@ -712,11 +720,19 @@ public class modeshapeServiceImpl implements modeshapeService {
 
 
         try {
+            //创建团队
             userService.createGroup(groupName, "0,5");
+            //创建团队库
+            String team_node = create_Team_Node(groupName, nodeName);
+            //记录团队库的id
+            UpdateWrapper<Groups> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("group_name", groupName);
+            updateWrapper.set("node_id",team_node);
+            groupsMapper.update(null, updateWrapper );
 
-            boolean team_node = create_Team_Node(groupName, nodeName);
-            if (!team_node)
+            if (team_node==null)
                 throw new RuntimeException("团队库初始化失败!");
+
             map.put("code", 200);
             map.put("msg", "团队已经成功完成创建");
 

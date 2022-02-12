@@ -25,6 +25,8 @@ public class Groups implements Serializable {
     private String owner;
     @TableField(value = "authority")
     private String Authority;
+    @TableField(value = "node_id")
+    private String nodeId;
 
     public Groups() {
     }
@@ -103,7 +105,23 @@ public class Groups implements Serializable {
         return result;
     }
 
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    @Override
     public String toString() {
-        return "Groups(id=" + this.getId() + ", groupName=" + this.getGroupName() + ", owner=" + this.getOwner() + ", Authority=" + this.getAuthority() + ")";
+        return "Groups{" +
+                "id=" + id +
+                ", groupName='" + groupName + '\'' +
+                ", owner='" + owner + '\'' +
+                ", Authority='" + Authority + '\'' +
+                ", nodeId='" + nodeId + '\'' +
+                '}';
     }
 }

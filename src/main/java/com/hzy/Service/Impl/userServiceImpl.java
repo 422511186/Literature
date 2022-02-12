@@ -120,10 +120,12 @@ public class userServiceImpl implements userService {
         Groups groups = groupsMapper.selectOne(new QueryWrapper<Groups>().eq("group_name", groupName));
         if (groups != null)
             throw new RuntimeException("该组名已被占用");
+
         Groups insertG = new Groups();
         insertG.setGroupName(groupName)
                 .setOwner(auth)
                 .setAuthority(authority);
+
         int i = groupsMapper.insert(insertG);
 
         userGroup userGroup = new userGroup();
@@ -148,13 +150,27 @@ public class userServiceImpl implements userService {
     public List<userGroup> getGroupsForMe() {
         String auth = SecurityContextHolder.getContext().getAuthentication().getName();
         log.debug("auth==>{}", auth);
-
+        //获取自己所在的所有团队名
         List<userGroup> lists = userGroupMapper.selectList(new QueryWrapper<userGroup>().eq("user_name", auth));
+        //获取自己创建的团队
+        List<Groups> owner = groupsMapper.selectList(new QueryWrapper<Groups>().eq("owner", auth));
+
+        List<String> ownerNameList = new ArrayList<>();
+        for (Groups e:owner){
+            log.info(e.getGroupName());
+            ownerNameList.add(e.getGroupName());
+        }
+
         ArrayList<userGroup> arrayList = new ArrayList<>();
+
         for (userGroup list: lists) {
-            if (!list.getGroupName().equals("ShareAll")&&!list.getGroupName().equals("Literature_library")){
+            if (!list.getGroupName().equals("ShareAll")&&
+                    !list.getGroupName().equals("Literature_library")&&
+                    !ownerNameList.contains(list.getGroupName())//不包含自己创建的团队名中间
+            ){
                 arrayList.add(list);
             }
+
         }
         return arrayList;
     }
@@ -201,7 +217,8 @@ public class userServiceImpl implements userService {
         if ("ShareAll".equals(GroupName) || "admins".equals(GroupName)||"Literature_library".equals(GroupName))
             return "无权限";
         String auth = SecurityContextHolder.getContext().getAuthentication().getName();
-        Groups selectOne = groupsMapper.selectOne(new QueryWrapper<Groups>().eq("group_name", GroupName));
+        Groups selectOne
+                = groupsMapper.selectOne(new QueryWrapper<Groups>().eq("group_name", GroupName));
         if (selectOne == null)
             return "该组不存在";
         if (!selectOne.getOwner().equals(auth))

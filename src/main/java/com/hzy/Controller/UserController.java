@@ -96,7 +96,7 @@ public class UserController {
 
         List<userGroup> getGroupsForMeList = userService.getGroupsForMe();
         map.put("code", 200);
-        map.put("getGroupsForMeList", getGroupsForMeList);
+        map.put("data", getGroupsForMeList);
 
         return map;
     }

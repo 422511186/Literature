@@ -1,9 +1,11 @@
 package com.hzy.Controller;
 
+import com.hzy.Controller.Vo.GroupVo;
 import com.hzy.Controller.model.KickModel;
 import com.hzy.Controller.model.setGroupModel;
 import com.hzy.Controller.model.userInfoModel;
 import com.hzy.Controller.model.userModel;
+import com.hzy.Service.Impl.groupInvitationCodeServiceImpl;
 import com.hzy.Service.Impl.modeshapeServiceImpl;
 import com.hzy.Service.Impl.userServiceImpl;
 import com.hzy.entity.Groups;
@@ -68,8 +70,6 @@ public class UserController {
         return map;
     }
 
-
-
     @ApiOperation("用户注册接口")
     @PostMapping(value = "register")
     public Map<String, Object> Register(@RequestBody userModel user) {
@@ -93,7 +93,6 @@ public class UserController {
         return map;
     }
 
-
     @ApiOperation("获取该账户创建的所有团队")
     @GetMapping(value = "getMyGroups")
     public Map<String, Object> getMyGroups() {
@@ -112,11 +111,10 @@ public class UserController {
     public Map<String, Object> getGroupsForMe() {
         Map<String, Object> map = new HashMap<>();
 
-        List<userGroup> getGroupsForMeList = userService.getGroupsForMe();
+        List<GroupVo> getGroupsForMeList = userService.getGroupsForMe();
 
         map.put("code", 200);
         map.put("data", getGroupsForMeList);
-
         return map;
     }
 
@@ -237,5 +235,6 @@ public class UserController {
         }
         return team;
     }
+
 
 }

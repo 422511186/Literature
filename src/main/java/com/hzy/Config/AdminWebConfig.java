@@ -2,6 +2,7 @@ package com.hzy.Config;
 
 import com.google.gson.Gson;
 import com.hzy.Factory.ModeShapeRepositoryFactory;
+import com.hzy.Utils.IdWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,10 +31,15 @@ public class AdminWebConfig  implements WebMvcConfigurer {
     @Bean
     ModeShapeRepositoryFactory repositoryFactory() {
         ModeShapeRepositoryFactory factory = new ModeShapeRepositoryFactory();
-        factory.setConfiguration(new ClassPathResource(CONFIG_PROD));
+        factory.setConfiguration(new ClassPathResource(CONFIG_DEV));
         return factory;
     }
 
+
+//    @Bean
+//    IdWorker IdWorker(){
+//        return  new IdWorker(1,1,1);
+//    }
 
     @Bean
     Gson gson(){
@@ -87,7 +93,7 @@ public class AdminWebConfig  implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/file/**")
-                .addResourceLocations("file:" + PDFPATH_PROD);
+                .addResourceLocations("file:" + PDFPATH_DEV);
     }
 
 }

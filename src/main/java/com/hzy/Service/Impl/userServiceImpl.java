@@ -1,7 +1,7 @@
 package com.hzy.Service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.hzy.Controller.Vo.GroupVo;
 import com.hzy.Controller.Vo.userVo;
 import com.hzy.Controller.model.userInfoModel;
 import com.hzy.Service.userService;
@@ -9,7 +9,6 @@ import com.hzy.entity.*;
 import com.hzy.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -197,7 +196,7 @@ public class userServiceImpl implements userService {
     }
 
     @Override
-    public List<userGroup> getGroupsForMe() {
+    public List<GroupVo> getGroupsForMe() {
         String auth = SecurityContextHolder.getContext().getAuthentication().getName();
         log.debug("auth==>{}", auth);
         //获取自己所在的所有团队名
@@ -213,16 +212,26 @@ public class userServiceImpl implements userService {
 
         ArrayList<userGroup> arrayList = new ArrayList<>();
 
-        for (userGroup list: lists) {
+        for (userGroup list : lists) {
             if (!list.getGroupName().equals("ShareAll")&&
                     !list.getGroupName().equals("Literature_library")&&
                     !ownerNameList.contains(list.getGroupName())//不包含自己创建的团队名中间
             ){
                 arrayList.add(list);
             }
-
         }
-        return arrayList;
+
+        ArrayList<GroupVo> list = new ArrayList<>();
+        arrayList.forEach(e->{
+            Groups one = groupsMapper.selectOne(new QueryWrapper<Groups>().eq("group_name", e.getGroupName()));
+            GroupVo vo = new GroupVo();
+            vo.setGroupName(e.getGroupName());
+            vo.setCreateTime(one.getCreateTime());
+            vo.setOwner(one.getOwner());
+            list.add(vo);
+        });
+
+        return list;
     }
 
     @Override

@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Auther: hzy
@@ -27,6 +30,11 @@ public class Groups implements Serializable {
     private String Authority;
     @TableField(value = "node_id")
     private String nodeId;
+
+    @TableField(value = "create_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
 
     public Groups() {
     }
@@ -64,6 +72,15 @@ public class Groups implements Serializable {
 
     public Groups setAuthority(String Authority) {
         this.Authority = Authority;
+        return this;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public Groups setCreateTime(Date createTime) {
+        this.createTime = createTime;
         return this;
     }
 
@@ -122,6 +139,7 @@ public class Groups implements Serializable {
                 ", owner='" + owner + '\'' +
                 ", Authority='" + Authority + '\'' +
                 ", nodeId='" + nodeId + '\'' +
+                ", createTime=" + createTime +
                 '}';
     }
 }

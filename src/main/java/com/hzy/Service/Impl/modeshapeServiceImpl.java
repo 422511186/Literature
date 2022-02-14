@@ -27,10 +27,7 @@ import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -728,6 +725,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             UpdateWrapper<Groups> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("group_name", groupName);
             updateWrapper.set("node_id",team_node);
+            updateWrapper.set("create_time",new Date());
             groupsMapper.update(null, updateWrapper );
 
             if (team_node==null)

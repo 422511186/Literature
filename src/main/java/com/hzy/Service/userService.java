@@ -1,5 +1,6 @@
 package com.hzy.Service;
 
+import com.hzy.Controller.Vo.GroupVo;
 import com.hzy.Controller.model.userInfoModel;
 import com.hzy.entity.Groups;
 import com.hzy.entity.Users;
@@ -69,7 +70,7 @@ public interface userService {
      *
      * @return
      */
-    List<userGroup> getGroupsForMe();
+    List<GroupVo> getGroupsForMe();
 
     /**
      * 拉人进组，需要组的创建者才能操作

@@ -35,16 +35,17 @@ public class MsController {
     @ApiOperation("获取列表信息")
     @GetMapping(value = "getList/{Type}")
     public Map<String, Object> getList(@PathVariable("Type") String Type,
+                                       @RequestParam(value = "sort", defaultValue = "0") @ApiParam(value = "按评分排序") String sort,
                                        @RequestParam(value = "id", required = false) @ApiParam(value = "子库的id") String id) {
-        log.info("Type = {} ,id = {}", Type ,id);
+//        log.info("Type = {} ,id = {}", Type ,id);
 
         Map<String, Object> map;
         if ("1".equals(Type)) {
-            map = modeshapeService.getFileInfoAll();
+            map = modeshapeService.getFileInfoAll(sort);
         } else if ("2".equals(Type))
-            map = modeshapeService.getAll(null);
+            map = modeshapeService.getAll(null,sort);
         else if ("3".equals(Type))
-            map = modeshapeService.getAllTeam(id);
+            map = modeshapeService.getAllTeam(id,sort);
         else {
             map = new HashMap<>();
             map.put("code", 500);
@@ -197,8 +198,7 @@ public class MsController {
     @PostMapping(value = "setNotes")
     public Map<String, Object> setNotes(@RequestParam(value = "id") String id,
                                         @RequestParam(value = "pageNum") Integer pageNum,
-                                        @RequestBody canvasModel Notes) {
-//        System.out.println(Notes);
+                                        @RequestBody Object Notes) {
         HashMap<String, Object> map = new HashMap<>();
         if (id.isEmpty()) {
             map.put("code", 500);
@@ -227,7 +227,7 @@ public class MsController {
             map.put("msg", "id为必须传入的参数,不可为空!");
             return map;
         }
-        canvasModel value;
+        Object value;
         try {
             value = modeshapeService.getNotes(id,pageNum);
             map.put("code", 200);

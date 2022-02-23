@@ -26,14 +26,45 @@ public class InvitationCodeController {
     @GetMapping(value = "generateVerificationCode")
     public Map<String, Object> generateVerificationCode(@RequestParam(value = "groupName") String groupName){
         HashMap<String, Object> map = new HashMap<>();
+        boolean isCreate;
+        //判断当前用户是否为该团队的创建者
+        try {
+            isCreate = service.isCreate(groupName);
+        } catch (Exception e) {
+            map.put("code",500);
+            map.put("msg",e.getMessage());
+            return map;
+        }
+        if (!isCreate) {
+            map.put("code",403);
+            map.put("msg","你不是这个团队的创建者,无权限");
+            return map;
+        }
+
         String code = service.generateVerificationCode(groupName);
         map.put("code",200);
         map.put("data",code);
+
         return map;
     }
     @GetMapping(value = "closeInviteCode")
     public Map<String, Object> closeInviteCode(@RequestParam(value = "groupName") String groupName){
         HashMap<String, Object> map = new HashMap<>();
+        boolean isCreate;
+        //判断当前用户是否为该团队的创建者
+        try {
+            isCreate = service.isCreate(groupName);
+        } catch (Exception e) {
+            map.put("code",500);
+            map.put("msg",e.getMessage());
+            return map;
+        }
+        if (!isCreate) {
+            map.put("code",403);
+            map.put("msg","你不是这个团队的创建者,无权限");
+            return map;
+        }
+
         boolean result = service.closeInviteCode(groupName);
         if (result){
             map.put("code",200);

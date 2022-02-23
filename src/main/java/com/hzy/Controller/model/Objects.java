@@ -41,6 +41,21 @@ public class Objects {
     private int skewX;
     private int skewY;
     private List<List<Object>> path;
+    private String fontFamily;
+    private int fontWeight;
+    private int fontSize;
+    private String text;
+    private boolean underline;
+    private boolean overline;
+    private boolean linethrough;
+    private String textAlign;
+    private String fontStyle;
+    private double lineHeight;
+    private String textBackgroundColor;
+    private int charSpacing;
+    private Objects styles;
+    private String direction;
+
     public void setType(String type) {
          this.type = type;
      }

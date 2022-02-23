@@ -1,5 +1,6 @@
 package com.hzy.Controller;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.google.gson.Gson;
 import com.hzy.Controller.model.canvasModel;
 import com.hzy.Test.A;
@@ -24,6 +25,8 @@ import java.util.Map;
 public class Test {
 
     private  SqlSessionFactory sqlSessionFactory;
+
+
 
     @Autowired
     public Test(SqlSessionFactory sqlSessionFactory) {
@@ -52,6 +55,7 @@ public class Test {
     }
     @PostMapping("Test03")
     public Object Test03(@RequestBody canvasModel model) {
+        System.out.println(model);
         return model;
     }
 }

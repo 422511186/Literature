@@ -1,6 +1,7 @@
 package com.hzy.Controller;
 
 import com.hzy.Controller.Vo.GroupVo;
+import com.hzy.Controller.Vo.userVo;
 import com.hzy.Controller.model.KickModel;
 import com.hzy.Controller.model.setGroupModel;
 import com.hzy.Controller.model.userInfoModel;
@@ -72,11 +73,11 @@ public class UserController {
 
     @ApiOperation("用户注册接口")
     @PostMapping(value = "register")
-    public Map<String, Object> Register(@RequestBody userModel user) {
+    public Map<String, Object> Register(@RequestBody userModel user){
         Map<String, Object> map = new HashMap<>();
 
-        //如果用户名或密码长度小于10位
-        if(user.getUsername().length()<=10||user.getPassword().length()<=10){
+        //TODO 用户名至少6位 密码至少8位
+        if(user.getUsername().length()<6||user.getPassword().length()<8){
             map.put("code",460);
             map.put("msg","用户名或者密码不符合要求");
             return map;
@@ -213,9 +214,9 @@ public class UserController {
     public Map<String, Object> getGroupInfo(@RequestParam(value = "groupName") String groupName) {
         Map<String, Object> map = new HashMap<>();
 
-        List<userGroup> groupInfo = userService.getGroupInfo(groupName);
+        List<userVo> groupInfo = userService.getGroupInfo(groupName);
         map.put("code", 200);
-        map.put("msg", groupInfo);
+        map.put("data", groupInfo);
 
         return map;
     }

@@ -1,9 +1,11 @@
 package com.hzy.Config;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hzy.Factory.ModeShapeRepositoryFactory;
 import com.hzy.Utils.IdWorker;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -21,29 +23,26 @@ import java.text.SimpleDateFormat;
 @Configuration
 public class AdminWebConfig  implements WebMvcConfigurer {
 
-
-    private  static final String CONFIG_DEV = "my-repository-config-dev.json";
-    private  static final String CONFIG_PROD = "my-repository-config-prod.json";
-
-    private static  final  String PDFPATH_DEV = "D:/Desktop/css/";
-    private static  final  String PDFPATH_PROD = "/home/ubuntu/MS/pdfs/";
+    @Value("${web.CONFIG}")
+    private String CONFIG;
+    @Value("${web.PDFPATH}")
+    private String PDFPATH;
 
     @Bean
     ModeShapeRepositoryFactory repositoryFactory() {
         ModeShapeRepositoryFactory factory = new ModeShapeRepositoryFactory();
-        factory.setConfiguration(new ClassPathResource(CONFIG_DEV));
+        factory.setConfiguration(new ClassPathResource(CONFIG));
         return factory;
     }
 
 
-//    @Bean
-//    IdWorker IdWorker(){
-//        return  new IdWorker(1,1,1);
-//    }
+
 
     @Bean
     Gson gson(){
-        return new Gson();
+        return new GsonBuilder()
+                .serializeNulls()
+                .create();
     }
 
     @Bean
@@ -93,7 +92,7 @@ public class AdminWebConfig  implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/file/**")
-                .addResourceLocations("file:" + PDFPATH_DEV);
+                .addResourceLocations("file:" + PDFPATH);
     }
 
 }

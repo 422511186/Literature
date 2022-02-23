@@ -1,6 +1,5 @@
 package com.hzy.Service.Impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.google.gson.Gson;
@@ -98,7 +97,7 @@ public class modeshapeServiceImpl implements modeshapeService {
 
 
     @Override
-    public Map<String, Object> getFileInfoAll() {
+    public Map<String, Object> getFileInfoAll(String sort) {
         Map<String, Object> map = new HashMap<>();
         ArrayList<PropertiesModel> list = new ArrayList<>();
         Session session = Login();
@@ -118,6 +117,14 @@ public class modeshapeServiceImpl implements modeshapeService {
                 String identifier = itNode.getIdentifier();
                 Map<String, Object> objectMap = getFileInfoByID(identifier);
                 list.add((PropertiesModel) objectMap.get("data"));
+            }
+            //按分数升序
+            if (sort.equals("1")){
+                list.sort((e1,e2)-> (int) (e1.getScore()-e2.getScore()));
+            }
+            //按分数降序
+            if (sort.equals("2")){
+                list.sort((e1,e2)-> (int) (e2.getScore()-e1.getScore()));
             }
 
             session.save();
@@ -188,7 +195,7 @@ public class modeshapeServiceImpl implements modeshapeService {
             fileName.setProperty("scoreMap", SerializeUtils.serializeToString(hashMap));
 
             //存储笔记的信息
-            HashMap<Integer, Object> notesMap = new HashMap();
+            HashMap<Integer, Object> notesMap = new HashMap<>();
             fileName.setProperty("notesMap", gson.toJson(notesMap));
 
             //存储评论的信息
@@ -320,7 +327,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     }
 
     @Override
-    public Map<String, Object> getAll(String nodeIdentifier) {
+    public Map<String, Object> getAll(String nodeIdentifier,String sort) {
         HashMap<String, Object> map = new HashMap<>();
         ArrayList<PropertiesModel> list = new ArrayList<>();
 
@@ -353,6 +360,15 @@ public class modeshapeServiceImpl implements modeshapeService {
                 String identifier = itNode.getIdentifier();
                 Map<String, Object> objectMap = getFileInfoByID(identifier);
                 list.add((PropertiesModel) objectMap.get("data"));
+            }
+
+            //按分数升序
+            if (sort.equals("1")){
+                list.sort((e1,e2)-> (int) (e1.getScore()-e2.getScore()));
+            }
+            //按分数降序
+            if (sort.equals("2")){
+                list.sort((e1,e2)-> (int) (e2.getScore()-e1.getScore()));
             }
 
             session.save();
@@ -607,7 +623,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     }
 
     @Override
-    public Map<String, Object> getAllTeam(String nodeIdentifier) {
+    public Map<String, Object> getAllTeam(String nodeIdentifier, String sort) {
         HashMap<String, Object> map = new HashMap<>();
 
         ArrayList<NodeModel> list = new ArrayList<>();
@@ -631,8 +647,6 @@ public class modeshapeServiceImpl implements modeshapeService {
                 if (itNode.getName().contains("mode:acl"))
                     continue;
 
-
-
                 String s = String.valueOf(itNode.getProperty("node_info").getValue());
                 //反序列化构建对象--> 获得节点的信息
                 NodeModel node_info = (NodeModel) SerializeUtils.deserializeToObject(s);
@@ -655,6 +669,15 @@ public class modeshapeServiceImpl implements modeshapeService {
                 }
             }
 
+            //按分数升序
+            if (sort.equals("1")){
+                list2.sort((e1,e2)-> (int) (e1.getScore()-e2.getScore()));
+            }
+            //按分数降序
+            if (sort.equals("2")){
+                list2.sort((e1,e2)-> (int) (e2.getScore()-e1.getScore()));
+            }
+
             map.put("code", 200);
             map.put("data", new HashMap(){{
                 put("node", list);
@@ -669,7 +692,7 @@ public class modeshapeServiceImpl implements modeshapeService {
 
             map.put("code", 500);
             map.put("error", e.getMessage());
-            log.error("getAll()-----出现异常 ==> {}", e.getMessage());
+            log.error("getAllTeam()-----出现异常 ==> {}", e.getMessage());
             e.printStackTrace();
         }
         return map;
@@ -948,18 +971,83 @@ public class modeshapeServiceImpl implements modeshapeService {
             //获取文献信息
             Property obj = node.getProperty("obj");
             String s = String.valueOf(obj.getValue());
+
             //反序列化成存储文献信息的对象
             PropertiesModel model1 = (PropertiesModel) SerializeUtils.deserializeToObject(s);
-            //保存原有的评分
-            model.setScore(model1.getScore());
 
-            //保存原有的评论
-            model.setComment(model1.getComment());
-            //保存文献PDF路径
-            model.setPath(model1.getPath());
+            if (model.getUrl()!=null&&!model.getUrl().isEmpty()){
+                model1.setUrl(model.getUrl());
+            }
+            if (model.getTitle()!=null&&!model.getTitle().isEmpty()){
+                model1.setTitle(model.getTitle());
+            }
+            if (model.getAuthor()!=null&&!model.getAuthor().isEmpty()){
+                model1.setAuthor(model.getAuthor());
+            }
+            if (model.getSummary()!=null&&!model.getSummary().isEmpty()){
+                model1.setSummary(model.getSummary());
+            }
+            if (model.getKeyWord()!=null&&!model.getKeyWord().isEmpty()){
+                model1.setKeyWord(model.getKeyWord());
+            }
+            if (model.getName()!=null&&!model.getName().isEmpty()){
+                model1.setName(model.getName());
+            }
+            if (model.getType()!=null&&!model.getType().isEmpty()){
+                model1.setType(model.getType());
+            }
+            if (model.getDynamicTags()!=null&&model.getDynamicTags().length>0){
+                model1.setDynamicTags(model.getDynamicTags());
+            }
+            if (model.getPublication_date()!=null&&!model.getPublication_date().isEmpty()){
+                model1.setPublication_date(model.getPublication_date());
+            }
+            if (model.getVolume()!=null){
+                model1.setVolume(model.getVolume());
+            }
+            if (model.getPeriod()!=null){
+                model1.setPeriod(model.getPeriod());
+            }
+            if (model.getPublicationPlace()!=null&&!model.getPublicationPlace().isEmpty()){
+                model1.setPublicationPlace(model.getPublicationPlace());
+            }
+            if (model.getPublisher()!=null&&!model.getPublisher().isEmpty()){
+                model1.setPublisher(model.getPublisher());
+            }
+            if (model.getPageCode()!=null){
+                model1.setPageCode(model.getPageCode());
+            }
+            if (model.getMeeting()!=null&&!model.getMeeting().isEmpty()){
+                model1.setMeeting(model.getMeeting());
+            }
+            if (model.getMeetingDate()!=null&&!model.getMeetingDate().isEmpty()){
+                model1.setMeetingDate(model.getMeetingDate());
+            }
+            if (model.getEditing()!=null&&!model.getEditing().isEmpty()){
+                model1.setEditing(model.getEditing());
+            }
+            if (model.getLanguage()!=null&&!model.getLanguage().isEmpty()){
+                model1.setLanguage(model.getLanguage());
+            }
+            if (model.getMainTopic()!=null&&!model.getMainTopic().isEmpty()){
+                model1.setMainTopic(model.getMainTopic());
+            }
+            if (model.getImportance()!=null){
+                model1.setImportance(model.getImportance());
+            }
+            if (model.getCases()!=null&&!model.getCases().isEmpty()){
+                model1.setCases(model.getCases());
+            }
+
+//            //保存原有的评分
+//            model.setScore(model1.getScore());
+//            //保存原有的评论
+//            model.setComment(model1.getComment());
+//            //保存文献原有的PDF路径
+//            model.setPath(model1.getPath());
 
             //将文献信息序列化成为字符串存储
-            node.setProperty("obj", SerializeUtils.serializeToString(model));
+            node.setProperty("obj", SerializeUtils.serializeToString(model1));
             session.save();
         } catch (Exception e) {
             e.printStackTrace();
@@ -1067,7 +1155,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     }
 
     @Override
-    public String setNotes(String id, Integer pageNum,canvasModel  Notes) throws Exception {
+    public String setNotes(String id, Integer pageNum,Object  Notes) throws Exception {
         Session session = Login();
         try {
             Node node = null;
@@ -1080,16 +1168,12 @@ public class modeshapeServiceImpl implements modeshapeService {
             //取出来
             String notesStr = String.valueOf(node.getProperty("notesMap").getValue());
 
-//            HashMap<Integer, Object> notesMap = (HashMap<Integer, Object>) SerializeUtils.deserializeToObject(notesStr);
             Map notesMap = gson.fromJson(notesStr, Map.class);
 
             //将页码与其对应的笔记画布存储
             notesMap.put(String.valueOf(pageNum) , gson.toJson(Notes));
-//            System.out.println("notesMap = " + notesMap);
-//            System.out.println("notesMap = " + notesMap.get("1"));
 
             //保存页数和笔记
-//            node.setProperty("notesMap", SerializeUtils.serializeToString(notesMap));
             node.setProperty("notesMap", gson.toJson(notesMap));
 
             session.save();
@@ -1136,7 +1220,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     }
 
     @Override
-    public canvasModel getNotes(String id,Integer pageNum) throws Exception {
+    public Object getNotes(String id,Integer pageNum) throws Exception {
 //        Map map;
         Map notesMap;
         String result;
@@ -1148,14 +1232,13 @@ public class modeshapeServiceImpl implements modeshapeService {
             } catch (RepositoryException e) {
                 throw new RuntimeException("该id不存在");
             }
-//            System.out.println(node.getProperty("notesMap").getString());
+
             //取出文献对应的笔记
             String notesStr = String.valueOf(node.getProperty("notesMap").getValue());
 
             notesMap = gson.fromJson(notesStr, Map.class);
             //取出指定页码的画布数据
             result = String.valueOf(notesMap.get(String.valueOf(pageNum)));
-            System.out.println("result = " + result);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1163,7 +1246,7 @@ public class modeshapeServiceImpl implements modeshapeService {
         } finally {
             session.logout();
         }
-        return gson.fromJson(result,canvasModel.class);
+        return gson.fromJson(result,Object.class);
     }
 
 

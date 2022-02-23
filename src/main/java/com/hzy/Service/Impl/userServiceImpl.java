@@ -54,6 +54,7 @@ public class userServiceImpl implements userService {
         wrapper.eq("username", username);
         Users userOne = usersMapper.selectOne(wrapper);
         userInfo userInfo = userInfoMapper.selectById(userOne.getId());
+
         userVo userVo = new userVo();
         userVo.setAccount(userOne.getUsername());
         userVo.setNickName(userInfo.getNickName());
@@ -63,7 +64,7 @@ public class userServiceImpl implements userService {
         userVo.setTelephone(userInfo.getTelephone());
         userVo.setPersonalStatement(userInfo.getPersonalStatement());
 
-        log.info("userVo={}",userVo);
+//        log.info("userVo={}",userVo);
         return userVo;
     }
 
@@ -338,8 +339,12 @@ public class userServiceImpl implements userService {
     }
 
     @Override
-    public List<userGroup> getGroupInfo(String groupName) {
-        return userGroupMapper.selectList(new QueryWrapper<userGroup>().eq("group_name", groupName));
+    public List<userVo> getGroupInfo(String groupName) {
+        List<userVo> list = userGroupMapper.getGroupUserInfos(groupName);
+
+
+
+        return list;
     }
 
 }

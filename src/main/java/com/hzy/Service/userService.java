@@ -1,10 +1,10 @@
 package com.hzy.Service;
 
 import com.hzy.Controller.Vo.GroupVo;
+import com.hzy.Controller.Vo.userVo;
 import com.hzy.Controller.model.userInfoModel;
 import com.hzy.entity.Groups;
 import com.hzy.entity.Users;
-import com.hzy.entity.userGroup;
 
 import java.util.List;
 
@@ -99,5 +99,5 @@ public interface userService {
 
     void KickGroup(String groupName, String userName);
 
-    List<userGroup> getGroupInfo(String groupName);
+    List<userVo> getGroupInfo(String groupName);
 }

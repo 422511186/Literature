@@ -33,4 +33,12 @@ public interface groupInvitationCodeService {
      * @return
      */
     boolean recordByCode(String id) throws Exception;
+
+    /**
+     * 验证该团队是否是当前用户创建的
+     * @param groupName
+     * @return
+     */
+    boolean isCreate(String groupName) throws Exception;
+
 }

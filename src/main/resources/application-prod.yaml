@@ -34,5 +34,5 @@ mybatis-plus:
 
 web:
   upload-path: /home/ubuntu/MS/pdfs/
-Ms:
-  my-repository-config:my-repository-config-prod.json
+  PDFPATH: /home/ubuntu/MS/pdfs/
+  CONFIG: my-repository-config-prod.json

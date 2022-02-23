@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.hzy.Service.groupInvitationCodeService;
+import com.hzy.entity.Groups;
 import com.hzy.entity.groupInvitationCode;
 import com.hzy.entity.userGroup;
-import com.hzy.mapper.UsersMapper;
+import com.hzy.mapper.GroupsMapper;
 import com.hzy.mapper.groupInvitationCodeMapper;
 import com.hzy.mapper.userGroupMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,8 @@ public class groupInvitationCodeServiceImpl implements groupInvitationCodeServic
     private groupInvitationCodeMapper groupInvitationCodeMapper;
     @Autowired
     private userGroupMapper userGroupMapper;
+    @Autowired
+    private GroupsMapper groupsMapper;
 
     /**
      * 生成邀请码
@@ -40,6 +43,8 @@ public class groupInvitationCodeServiceImpl implements groupInvitationCodeServic
     public String generateVerificationCode(String groupName) {
         //根据雪花算法生成id，作为团队唯一的邀请码
         long id = IdWorker.getId();
+        String s = String.valueOf(id);
+        id = Long.parseLong(s.substring(s.length()-8));
         //查看数据库表中是否已经含有该id(code)
         QueryWrapper<groupInvitationCode> queryWrapperCount = new QueryWrapper<>();
         queryWrapperCount.eq("code",String.valueOf(id));
@@ -47,6 +52,8 @@ public class groupInvitationCodeServiceImpl implements groupInvitationCodeServic
         //如果已经含有，则重新生成id，并且重新查阅
         while (selectCount!=0){
             id = IdWorker.getId();
+            String s1 = String.valueOf(id);
+            id = Long.parseLong(s1.substring(s1.length()-8));
             queryWrapperCount.eq("code",String.valueOf(id));
             selectCount = groupInvitationCodeMapper.selectCount(queryWrapperCount);
         }
@@ -134,6 +141,24 @@ public class groupInvitationCodeServiceImpl implements groupInvitationCodeServic
             return false;
         }
         return true;
+    }
+
+    /**
+     * 验证该团队是否是当前用户创建的
+     * @param groupName
+     * @return
+     */
+    @Override
+    public boolean isCreate(String groupName) throws Exception {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        QueryWrapper<Groups> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("group_name",groupName);
+        Groups one = groupsMapper.selectOne(queryWrapper);
+        //数据库中没有这个团队
+        if (one==null)
+            throw new Exception("该团队不存在");
+        
+        return userName.equals(one.getOwner());
     }
 
 

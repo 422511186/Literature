@@ -2,7 +2,6 @@ package com.hzy.Service;
 
 import com.hzy.Controller.model.PropertiesModel;
 import com.hzy.Controller.model.addAnnotationModel;
-import com.hzy.Controller.model.canvasModel;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -20,7 +19,7 @@ public interface modeshapeService {
     Session Login();
     //文献库管理的的服务
     //获得文献库中所有文献信息
-    Map<String, Object> getFileInfoAll();
+    Map<String, Object> getFileInfoAll(String sort);
 
     //添加文献信息
     Map<String, Object> addFileInfo(String Type,String id,PropertiesModel model);
@@ -40,7 +39,7 @@ public interface modeshapeService {
 
     //用户个人库服务
     //获取文件夹下所有
-    Map<String, Object> getAll(String nodeIdentifier);
+    Map<String, Object> getAll(String nodeIdentifier,String sort);
 
     //新建文件夹
     Map<String, Object> addNode(String nodeIdentifier, String nodeName, int f);
@@ -62,7 +61,7 @@ public interface modeshapeService {
 
     //协同阅读模块
     //获得所有的团队库
-    Map<String, Object> getAllTeam(String nodeIdentifier);
+    Map<String, Object> getAllTeam(String nodeIdentifier, String sort);
 
     //创建团队库
     String create_Team_Node(String groupName, String nodeName);
@@ -125,7 +124,7 @@ public interface modeshapeService {
      * @param Notes
      * @return
      */
-    String setNotes(String id, Integer pageNum, canvasModel Notes) throws Exception;
+    String setNotes(String id, Integer pageNum, Object Notes) throws Exception;
 
     /**
      * 保存文献PDF路径
@@ -141,7 +140,7 @@ public interface modeshapeService {
      * @param pageNum    页码
      * @return
      */
-    canvasModel getNotes(String id,Integer pageNum) throws Exception;
+    Object getNotes(String id,Integer pageNum) throws Exception;
     /**
      * 获取文献的评论
      * @param id    文献的id

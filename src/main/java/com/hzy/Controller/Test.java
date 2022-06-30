@@ -53,6 +53,7 @@ public class Test {
         System.out.println("mapTest02 = " + map);
         return map;
     }
+
     @PostMapping("/Test03")
     public Object Test03(@RequestBody canvasModel model) {
         System.out.println(model);

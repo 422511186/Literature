@@ -58,7 +58,7 @@ public class Test {
         System.out.println(model);
         return model;
     }
-    @GetMapping("Test04")
+    @GetMapping("/Test04")
     public String Test04() {
 
         return "flow 部署成功！";

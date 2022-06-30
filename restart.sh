@@ -61,7 +61,7 @@ echo "$APP_NAME already running "
 exit 1
 fi
 
-nohup java $JAVA_OPTS -jar $_JAR_NAME  --spring.profiles.active=$SPRING_BOOT_PROFILE > ./$_JAR_NAME.log 2>&1 &
+nohup java $JAVA_OPTS -jar $_JAR_NAME  --spring.profiles.active=$SPRING_BOOT_PROFILE > $_JAR_NAME.log 2>&1 &
 
 echo "Starting ..."
 for i in {1..20};do

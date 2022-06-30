@@ -46,7 +46,7 @@ echo 'into target...'
 cd /home/admin/application/target
 echo 'over...'
 
-echo 'starting...'
+echo starting... java -jar ${APP_NAME}.jar &> $APP_NAME.log &
 nohup java -jar $APP_NAME.jar &> $APP_NAME.log &
 echo 'over...'
 

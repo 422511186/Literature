@@ -1,92 +1,45 @@
-#!/bin/bash
-source ~/.bash_profile
-#JAVA_OPTIONS_INITIAL=-Xms128M
-#JAVA_OPTIONS_MAX=-Xmx512M
-echo "Application [$1]-[profile-$2] $3"
-JAVA_OPTS="-server  -XX:NewRatio=2 -XX:SurvivorRatio=8 -XX:+UseParallelGC"
-_JAR_NAME=$1
-APP_NAME=$1
-SPRING_BOOT_PROFILE=$2
-PID=$(ps aux|grep ${_JAR_NAME} |grep -v grep | grep -v $0 | awk '{print $2}')
-#SERVICE_NAME=`echo $_JAR_NAME | awk -F '.jar' '{print $1}'`
-#SKYWALKING_OPTS="-javaagent:/home/skywalking-agent/skywalking-agent.jar -Dskywalking.agent.service_name=$SERVICE_NAME"
-function check_if_process_is_running {
-if [ "$PID" = "" ];
-then
-return 1
-fi
-ps -p $PID |grep "java"
-return $?
-}
+#!/bin/sh
+echo =================================
+echo  自动化部署脚本启动
+echo =================================
 
-case "$3" in
-status)
-if check_if_process_is_running
-then
-echo "$APP_NAME is running...."
+echo 停止原来运行中的工程
+APP_NAME=modeshape
+
+# 查找进程id是否存在，存在则停止进程
+tpid=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk '{print $2}'`
+if [ ${tpid} ]; then
+    echo 'Stop Process...'
+    kill -15 $tpid
+fi
+
+# 睡眠两秒
+sleep 2
+
+# 再次查找进程id，存在则杀死进程（双重保障进程已停止）
+tpid=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk '{print $2}'`
+if [ ${tpid} ]; then
+    echo 'Kill Process!'
+    kill -9 $tpid
 else
-echo "$APP_NAME is not running...."
-fi
-;;
-stop)
-if ! check_if_process_is_running
-then
-echo "$APP_NAME is alread stopped."
-exit 0
-fi
-kill -9 $PID
-echo "Waiting for process to stop......"
-NOT_KILLED=1
-for i in {1..20}; do
-if check_if_process_is_running
-then
-echo "."
-sleep 1
-else
-NOT_KILLED=0
-fi
-done
-
-if [ $NOT_KILLED = 1 ]
-then
-echo "Cannot kill process"
-exit 1
-fi
-echo "the $APP_NAME already stoped"
-;;
-start)
-if [ "$PID" != "" ] && check_if_process_is_running
-then
-echo "$APP_NAME already running "
-exit 1
+    echo 'Stop Success!'
 fi
 
-nohup java $JAVA_OPTS -jar $_JAR_NAME  --spring.profiles.active=$SPRING_BOOT_PROFILE > $_JAR_NAME.log 2>&1 &
+#echo 准备从Git仓库拉取最新代码
+#cd /usr/local/ssm-crud
+#
+#echo 开始从Git仓库拉取最新代码
+#git pull
+#echo 代码拉取完成
+#
+#echo 开始打包
+## 先clear在打包，取消单元测试
+#output=`mvn clean package -Dmaven.test.skip=true`
 
-echo "Starting ..."
-for i in {1..20};do
-echo "."
-sleep 1
-done
+echo 进入项目打包后的文件夹
+cd /home/admin/application/target
 
-if check_if_process_is_running
-then
-echo "$APP_NAME fail"
-else
-echo "$APP_NAME started"
-fi
-;;
-restart)
-sh $0 $1 $2 stop
-if [ $? = 1 ]
-then
-exit 1
-fi
-sh $0 $1 $2 start
-;;
-*)
-echo "Usage: $3 {start|stop|restart|status}"
-exit 1
-esac
+echo 启动项目...
+nohup java -jar modeshape-2.3.4.RELEASE.jar &> modeshape-2.3.4.RELEASE.log &
+echo 项目启动完成.
 
-exit 0

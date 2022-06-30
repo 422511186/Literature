@@ -4,13 +4,15 @@ echo  自动化部署脚本启动
 echo =================================
 
 echo 停止原来运行中的工程
-APP_NAME=modeshape
+APP_NAME=modeshape-2.3.4.RELEASE
 
 # 查找进程id是否存在，存在则停止进程
 tpid=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk '{print $2}'`
 if [ ${tpid} ]; then
     echo 'Stop Process...'
     kill -15 $tpid
+else
+  echo 'that Process is unActive.'
 fi
 
 # 睡眠两秒
@@ -35,11 +37,12 @@ fi
 #echo 开始打包
 ## 先clear在打包，取消单元测试
 #output=`mvn clean package -Dmaven.test.skip=true`
-
-echo 进入项目打包后的文件夹
+echo '当前目录为'
+echo pwd
+echo '开始进入项目打包后的文件夹'
 cd /home/admin/application/target
 
 echo 启动项目...
-nohup java -jar modeshape-2.3.4.RELEASE.jar &> modeshape-2.3.4.RELEASE.log &
+nohup java -jar $APP_NAME.jar &> $APP_NAME.log &
 echo 项目启动完成.
 

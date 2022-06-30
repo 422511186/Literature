@@ -40,13 +40,12 @@ fi
 
 echo 'pwd='
 pwd
-output='pwd'
 
-echo 'into target...'
+echo "into target..."
 cd /home/admin/application/target
-echo 'over...'
+echo "over..."
 
-echo starting... java -jar ${APP_NAME}.jar &> $APP_NAME.log &
+echo "starting... java -jar ${APP_NAME}.jar &> $APP_NAME.log &"
 nohup java -jar $APP_NAME.jar &> $APP_NAME.log &
-echo 'over...'
+echo "over..."
 

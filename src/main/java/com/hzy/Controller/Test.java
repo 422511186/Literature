@@ -64,6 +64,10 @@ public class Test {
 
         return "flow 部署成功！1";
     }
+    @GetMapping("/Test05")
+    public String Test05() {
 
+        return "flow 部署成功！Test05";
+    }
 }
 

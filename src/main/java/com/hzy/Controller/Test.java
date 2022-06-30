@@ -37,23 +37,23 @@ public class Test {
      * TODO 验证spring容器中已经含有sqlSessionFactory对象
      * @return
      */
-    @GetMapping("Test01")
+    @GetMapping("/Test01")
     public Map<String, Object> getUser() {
         Map<String, Object> map = new HashMap<>();
         System.out.println("sqlSessionFactory = " + sqlSessionFactory);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
         System.out.println("sqlSession = " + sqlSession);
-        map.put("code", 200);
+        map.put("code/Test01", 200);
         return map;
     }
-    @GetMapping("Test02")
+    @GetMapping("/Test02")
     public Map Test02() {
         Gson gson = new Gson();
         Map map = gson.fromJson(A.B, Map.class);
-        System.out.println("map = " + map);
+        System.out.println("mapTest02 = " + map);
         return map;
     }
-    @PostMapping("Test03")
+    @PostMapping("/Test03")
     public Object Test03(@RequestBody canvasModel model) {
         System.out.println(model);
         return model;

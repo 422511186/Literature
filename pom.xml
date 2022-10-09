@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>com.hzy</groupId>
-    <artifactId>modeshape</artifactId>
+    <artifactId>Literature</artifactId>
 
-    <name>modeshape</name>
+    <name>Literature</name>
     <description>Login for Spring Boot</description>
 
 

@@ -9,11 +9,12 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.hzy</groupId>
     <artifactId>Literature</artifactId>
+    <packaging>jar</packaging>
 
-    <name>Literature</name>
-    <description>Login for Spring Boot</description>
+    <description>
+        文献管理
+    </description>
 
 
     <properties>
@@ -187,6 +188,7 @@
     </dependencies>
 
     <build>
+        <finalName>Literature</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -209,16 +211,5 @@
             <url>https://repository.jboss.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-<!--        <pluginRepository>-->
-<!--            <id>spring-releases</id>-->
-<!--            <name>Spring Releases</name>-->
-<!--            <url>https://repo.spring.io/release</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--        </pluginRepository>-->
-    </pluginRepositories>
-
 
 </project>

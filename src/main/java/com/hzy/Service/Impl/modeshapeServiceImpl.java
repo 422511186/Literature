@@ -51,7 +51,7 @@ public class modeshapeServiceImpl implements modeshapeService {
     private Gson gson;
 
     //绑定文件上传路径到uploadPath
-    @Value("${web.upload-path}")
+    @Value("${web.UPLOAD_PATH}")
     private String uploadPath;
 
     //初始化项目的必要存储库

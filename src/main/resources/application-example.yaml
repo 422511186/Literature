@@ -1,7 +1,5 @@
 server:
-  port: 8999 #启动端口
-
-
+  port: 8999 #启动端口为8999
 spring:
   servlet:
     multipart:
@@ -15,24 +13,25 @@ spring:
       classpath:/resources/,
       classpath:/static/,
       classpath:/public/,
-      file:${web.upload-path}
-
-
+      file:${web.UPLOAD_PATH}
   datasource:
-    url: jdbc:mysql://localhost:3306/ms?characterEncoding=UTF-8&&serverTimezone=GMT&&allowMultiQueries=true&&&rewriteBatchedStatements=true
-    username: hzy
-    password: 145235!
+    url: jdbc:mysql://localhost:3306/ms?characterEncoding=UTF-8&&serverTimezone=GMT
+    # 数据库用户名
+    username:
+    # 数据库密码
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
-
-
 mybatis-plus:
   mapper-locations: classpath:mybatis/mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true #开启驼峰命名法
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
 web:
-  upload-path: /home/ubuntu/MS/pdfs/
-  PDFPATH: /home/ubuntu/MS/pdfs/
-  CONFIG: my-repository-config-prod.json
+  # 文件上传的位置
+  UPLOAD_PATH: D:\Literature_workspace\
+  # 上传Pdf存放的位置 和上面保持一致
+  PDF_PATH: D:\Literature_workspace\
+  # modeshape配置
+  CONFIG: my-repository-config.json
+

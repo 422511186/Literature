@@ -3,9 +3,9 @@
   "storage": {
     "persistence": {
       "type": "db",
-      "connectionUrl": "jdbc:mysql://localhost:3306/ms?characterEncoding=UTF-8&&serverTimezone=GMT&&allowMultiQueries=true&&&rewriteBatchedStatements=true",
-      "username": "hzy",
-      "password": "145235!",
+      "connectionUrl": "jdbc:mysql://127.0.0.1:3306/ms?serverTimezone=GMT",
+      "username": "",
+      "password": "",
       "driver": "com.mysql.cj.jdbc.Driver"
     },
     "binaryStorage" : {

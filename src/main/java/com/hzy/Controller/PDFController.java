@@ -31,7 +31,7 @@ public class PDFController {
     private final modeshapeServiceImpl modeshapeService;
 
     //绑定文件上传路径到uploadPath
-    @Value("${web.upload-path}")
+    @Value("${web.UPLOAD_PATH}")
     private String uploadPath;
 
     @Autowired

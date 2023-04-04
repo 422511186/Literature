@@ -25,7 +25,8 @@ public class AdminWebConfig  implements WebMvcConfigurer {
 
     @Value("${web.CONFIG}")
     private String CONFIG;
-    @Value("${web.PDFPATH}")
+
+    @Value("${web.PDF_PATH}")
     private String PDFPATH;
 
     @Bean
@@ -34,9 +35,6 @@ public class AdminWebConfig  implements WebMvcConfigurer {
         factory.setConfiguration(new ClassPathResource(CONFIG));
         return factory;
     }
-
-
-
 
     @Bean
     Gson gson(){
@@ -88,11 +86,12 @@ public class AdminWebConfig  implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/file/**")
+        String pathPatterns = "/file/**";
+        registry.addResourceHandler(pathPatterns)
                 .addResourceLocations("file:" + PDFPATH);
+        log.info("add resource mapper {} ==> {}", pathPatterns, PDFPATH);
     }
 
 }

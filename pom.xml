@@ -20,7 +20,6 @@
     <properties>
         <java.version>8</java.version>
         <repackage.classifier/>
-        <spring-native.version>0.10.3</spring-native.version>
     </properties>
 
     <dependencyManagement>
@@ -152,12 +151,6 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>spring-native</artifactId>
-            <version>0.10.3</version>
-            <scope>test</scope>
-        </dependency>
         <!--Swagger /swagger-ui/index.html-->
         <dependency>
             <groupId>io.springfox</groupId>
@@ -197,19 +190,19 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>spring-releases</id>
-            <name>Spring Releases</name>
-            <url>https://repo.spring.io/release</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>JBoss</id>
-            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>spring-releases</id>-->
+<!--            <name>Spring Releases</name>-->
+<!--            <url>https://repo.spring.io/release</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>JBoss</id>-->
+<!--            <url>https://repository.jboss.org/nexus/content/groups/public/</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
 </project>
